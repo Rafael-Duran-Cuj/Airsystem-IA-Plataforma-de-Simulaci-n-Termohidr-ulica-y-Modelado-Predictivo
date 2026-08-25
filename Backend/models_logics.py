@@ -115,9 +115,8 @@ class MultiTargetMLPWeighted(BaseEstimator, RegressorMixin):
             
         return np.column_stack(preds)
 
-# ════════════════════════════════════════════════════════════════
-# MODELO COMBINADO HÍBRIDO (V7)
-# ════════════════════════════════════════════════════════════════
+# MODELO COMBINADO HÍBRIDO
+
 class CombinedRadiatorModel:
     def __init__(self, dp_air_model, dp_w_model, dp_air_features, 
                  dp_w_features, mlp_q=None, transformer=None):
@@ -143,12 +142,11 @@ class CombinedRadiatorModel:
 
     def predict_qitd(self, va, qw, full_features_df=None):
         # 1. Intentar usar el modelo Híbrido (MLP) si existe
-        # Usamos getattr para evitar el error 'has no attribute'
         mlp_q = getattr(self, 'mlp_q', None)
         transformer = getattr(self, 'transformer', None)
 
         if mlp_q is not None and transformer is not None and full_features_df is not None:
-            # Lógica para el modelo V7
+            # Lógica para el modelo
             X_transformed = transformer.transform(full_features_df)
             q_pred = mlp_q.predict(X_transformed)
             return q_pred[0] if hasattr(q_pred, "__len__") else q_pred
