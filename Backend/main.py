@@ -1,4 +1,4 @@
-# app.py — Servidor Flask con rutas para autenticación, carga de modelos, simulaciones y generación de matrices.
+# main.py — Servidor Flask con rutas para autenticación, carga de modelos, simulaciones y generación de matrices.
 
 import joblib
 import pandas as pd
@@ -84,9 +84,8 @@ MODELOS_AIRSYSTEM = {
 }
 
 app_state = {'pipeline': None, 'modelos_externos': {}}
-# ════════════════════════════════════════════════════════════════
+
 #  RUTAS DE AUTENTICACIÓN
-# ════════════════════════════════════════════════════════════════
 
 @app.route('/login', methods=['GET'])
 def login_page():
@@ -124,9 +123,8 @@ def api_me():
         return jsonify({"success": False, "autenticado": False}), 401
     return jsonify({"success": True, "autenticado": True, "usuario": user})
 
-# ════════════════════════════════════════════════════════════════
 #  RUTA EXCLUSIVA ADMIN — actualizar modelo IA
-# ════════════════════════════════════════════════════════════════
+
 @app.route('/api/update-model', methods=['POST'])
 @solo_admin
 def update_model():
@@ -156,9 +154,8 @@ def update_model():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-# ════════════════════════════════════════════════════════════════
 #  RUTAS EXISTENTES — protegidas con @login_requerido
-# ════════════════════════════════════════════════════════════════
+
 @app.route('/api/modelos', methods=['GET'])
 @login_requerido  
 def obtener_modelos():
