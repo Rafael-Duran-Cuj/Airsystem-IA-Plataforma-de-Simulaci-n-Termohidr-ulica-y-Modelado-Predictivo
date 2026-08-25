@@ -1,0 +1,2 @@
+# Airsystem-IA-Plataforma-de-Simulaci-n-Termohidr-ulica-y-Modelado-Predictivo
+Aplicación web integral para la evaluación multivariable de sistemas térmicos. Utiliza modelos de regresión avanzada y redes neuronales para predecir la disipación de calor, caída de presión del aire y caída de presión del agua en tiempo real, permitiendo la configuración de matrices de rendimiento y análisis de sensibilidad local.
