@@ -39,6 +39,7 @@ El entorno está configurado para ejecutarse en infraestructuras locales o servi
 ## Ejecución del Entrenamiento
 
 Para iniciar el pipeline de entrenamiento de los regresores:
+
 python -m models.train_boosting
 
 Para entrenar la red neuronal informada por la física:
