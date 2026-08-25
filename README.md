@@ -32,8 +32,11 @@ El entorno está configurado para ejecutarse en infraestructuras locales o servi
 
 ## Estructura del Código
 /data: Scripts de preprocesamiento de datos (limpieza de CSVs/Excel).
+
 /models: Definición de arquitecturas. Contiene los scripts de entrenamiento para los ensambles (XGBoost/Scikit-learn) y los tensores de PyTorch para las PINNs.
+
 /notebooks: Análisis exploratorio y evaluación de métricas de rendimiento ($R^2$, RMSE).
+
 /docs: Documentación técnica (código fuente en LaTeX del marco teórico).
 
 ## Ejecución del Entrenamiento
