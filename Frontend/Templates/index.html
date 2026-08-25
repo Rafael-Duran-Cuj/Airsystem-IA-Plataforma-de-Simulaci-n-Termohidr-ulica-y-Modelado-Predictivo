@@ -1,0 +1,317 @@
+<!-- index.html - Página principal de AirSystem -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airsystem IA v3.0 | Plataforma de Ingeniería</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Plotly para gráficas interactivas -->
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+    <div id="toastContainer"></div>
+
+    <nav class="top-nav">
+        <div class="container nav-wrapper">
+            <div class="brand">
+                <span class="brand-logo"></span>
+                <div class="brand-text">
+                    <h1 class="main-title">Airsystem IA</h1>
+                    <span class="version-badge">V9.0</span>
+                </div>
+            </div>
+            <div class="system-status">
+                <div class="status-indicator">
+                    <span class="dot warning" id="dotIA"></span>
+                    <span class="status-text">IA Core: <strong id="statusIA">Desconectado</strong></span>
+                </div>
+                <div class="status-divider"></div>
+                <div class="status-indicator">
+                    <span class="dot success"></span>
+                    <span class="status-text">Modelos: <strong id="statusModelos">0</strong></span>
+                </div>
+                <!-- Después del segundo status-indicator existente -->
+                <div class="status-divider"></div>
+                <div class="status-indicator">
+                    <span class="dot success"></span>
+                    <span class="status-text">
+                        <strong id="statusUsuario">---</strong>
+                        &nbsp;·&nbsp;
+                        <span id="statusRol" style="color: #f97316; font-weight:600"></span>
+                    </span>
+                </div>
+                <button class="btn btn-ghost" style="padding:.4rem .8rem; font-size:.8rem"
+                        onclick="cerrarSesion()">
+                    <i data-lucide="log-out"></i> Salir
+                </button>
+            </div>
+        </div>
+    </nav>
+
+<header class="action-header">
+        <div class="container action-container">
+            <div class="action-buttons">
+                <!-- Botón Cargar Modelo: Solo para Admins -->
+                <button class="btn btn-primary admin-only" onclick="cargarModeloIA()">
+                    <i data-lucide="cpu"></i>
+                    <span>Cargar Modelo IA</span>
+                </button>
+                
+                <!-- Botón Base de Datos: Solo para Admins -->
+                <button class="btn btn-outline admin-only" onclick="cargarExcelExterno()">
+                    <i data-lucide="database"></i>
+                    <span>Base de Datos Externa</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-layout">
+
+        <aside class="sidebar">
+            <nav class="side-tabs">
+                <button class="tab-btn active" onclick="mostrarTab('manual')">
+                    <i data-lucide="sliders"></i> Simulación Manual
+                </button>
+                <button class="tab-btn" onclick="mostrarTab('presets')">
+                    <i data-lucide="layers"></i> Modelos Precargados
+                </button>
+                <button class="tab-btn" onclick="mostrarTab('rangos')">
+                    <i data-lucide="trending-up"></i> Análisis de Rangos
+                </button>
+                <button class="tab-btn" onclick="mostrarTab('historial')">
+                    <i data-lucide="history"></i> Registro Histórico
+                </button>
+            </nav>
+        </aside>
+
+        <section class="workspace">
+
+            <!-- TAB: SIMULACIÓN MANUAL -->
+            <div id="tab-manual" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <i data-lucide="edit-3"></i>
+                        <h2>Configuración Paramétrica</h2>
+                    </div>
+
+                    <form id="formManual" class="form-grid"></form>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-ghost" onclick="resetearManual()">Restablecer</button>
+                        <button type="button" class="btn btn-success btn-execute" onclick="calcularManual()">
+                            Ejecutar Predicción
+                        </button>
+                    </div>
+
+                    <div class="results-display">
+                        <div class="result-card qitd">
+                            <span class="label">Qitd (W/°C)</span>
+                            <span id="resManualQitd" class="value">---</span>
+                        </div>
+                        <div class="result-card dpair">
+                            <span class="label">DpAir (Pa)</span>
+                            <span id="resManualDpair" class="value">---</span>
+                        </div>
+                        <div class="result-card dpw">
+                            <span class="label">DpW (mbar)</span>
+                            <span id="resManualDpw" class="value">---</span>
+                        </div>
+                    </div>
+
+                    <!-- Gráfica de sensibilidad local -->
+                    <div class="chart-section">
+                        <div class="chart-header">
+                            <i data-lucide="activity"></i>
+                            <h3>Curva de Sensibilidad Local — Velocidad de Aire</h3>
+                        </div>
+                        <div id="chartSensManual" class="plotly-chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: MODELOS PRECARGADOS -->
+            <div id="tab-presets" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <i data-lucide="layers"></i>
+                        <h2>Biblioteca de Modelos Precargados</h2>
+                    </div>
+
+                    <div class="model-selector">
+                        <label>Seleccionar Modelo de Radiador</label>
+                        <div class="selector-row">
+                            <select id="comboModelos" class="select-model" onchange="autoLlenarPreset()"></select>
+                            <button class="btn btn-outline btn-icon" onclick="actualizarListaModelos()">
+                                <i data-lucide="refresh-cw"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="preset-layout">
+                        <div class="preset-panel">
+                            <h3 class="panel-title"><i data-lucide="ruler"></i> Especificaciones Dimensionales</h3>
+                            <div id="dimensionesModelo" class="specs-grid"></div>
+                        </div>
+                        <div class="preset-panel">
+                            <h3 class="panel-title"><i data-lucide="settings"></i> Parámetros Operacionales</h3>
+                            <div id="operacionalesPreset" class="operationals-form"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-success btn-execute" onclick="calcularPreset()">
+                            Ejecutar Simulación
+                        </button>
+                    </div>
+
+                    <div class="results-display">
+                        <div class="result-card qitd">
+                            <span class="label">Qitd (W/°C)</span>
+                            <span id="resPresetQitd" class="value">---</span>
+                        </div>
+                        <div class="result-card dpair">
+                            <span class="label">DpAir (Pa)</span>
+                            <span id="resPresetDpair" class="value">---</span>
+                        </div>
+                        <div class="result-card dpw">
+                            <span class="label">DpW (mbar)</span>
+                            <span id="resPresetDpw" class="value">---</span>
+                        </div>
+                    </div>
+
+                    <!-- Gráfica de sensibilidad local -->
+                    <div class="chart-section">
+                        <div class="chart-header">
+                            <i data-lucide="activity"></i>
+                            <h3>Curva de Sensibilidad Local — Velocidad de Aire</h3>
+                        </div>
+                        <div id="chartSensPreset" class="plotly-chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ANÁLISIS DE RANGOS -->
+            <div id="tab-rangos" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <i data-lucide="trending-up"></i>
+                        <h2>Matriz de Rendimiento Multivariable</h2>
+                    </div>
+
+                    <div class="dimensions-snapshot">
+                        <div class="snapshot-header">
+                            <h3>Dimensiones del Núcleo (Fijas)</h3>
+                            <button class="btn-text" onclick="actualizarDimensionesRangos()">
+                                <i data-lucide="refresh-cw"></i> Sincronizar Dimensiones
+                            </button>
+                        </div>
+                        <div id="dimensionesRangos" class="snapshot-grid"></div>
+                    </div>
+
+                    <div class="range-config-area">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Variable Operacional</th>
+                                    <th>Límite Mínimo</th>
+                                    <th>Límite Máximo</th>
+                                    <th>Intervalos (Steps)</th>
+                                    <th>Vista Previa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rangosTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="execution-footer">
+                        <div class="execution-info">
+                            <i data-lucide="info"></i>
+                            <span id="totalCombinaciones">Cálculos previstos: 0</span>
+                        </div>
+                        <div class="execution-btns">
+                            <button class="btn btn-outline" onclick="previewCombinaciones()">
+                                <i data-lucide="eye"></i> Vista Previa
+                            </button>
+                            <button class="btn btn-success btn-execute" onclick="generarMatriz()">
+                                <i data-lucide="bar-chart-2"></i> Generar Análisis
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3 Subplots independientes -->
+                    <div class="charts-rangos-grid">
+                        <div class="chart-section">
+                            <div class="chart-header">
+                                <span class="chart-dot" style="background:#10b981"></span>
+                                <h3>Q<sub>ITD</sub> — Potencia Térmica</h3>
+                            </div>
+                            <div id="chartRangosQitd" class="plotly-chart"></div>
+                        </div>
+                        <div class="chart-section">
+                            <div class="chart-header">
+                                <span class="chart-dot" style="background:#3b82f6"></span>
+                                <h3>DP<sub>Air</sub> — Caída de Presión Aire</h3>
+                            </div>
+                            <div id="chartRangosDpair" class="plotly-chart"></div>
+                        </div>
+                        <div class="chart-section">
+                            <div class="chart-header">
+                                <span class="chart-dot" style="background:#f59e0b"></span>
+                                <h3>DP<sub>W</sub> — Caída de Presión Agua</h3>
+                            </div>
+                            <div id="chartRangosDpw" class="plotly-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: HISTORIAL -->
+            <div id="tab-historial" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <i data-lucide="history"></i>
+                        <h2>Registro Histórico de Simulaciones</h2>
+                    </div>
+                    <div id="historialContent" class="history-log">
+                        <div class="empty-state">
+                            <i data-lucide="inbox"></i>
+                            <p>No hay simulaciones registradas</p>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-outline" onclick="limpiarHistorial()">
+                            <i data-lucide="trash-2"></i> Limpiar Historial
+                        </button>
+                        <button class="btn btn-primary" onclick="exportarHistorial()">
+                            <i data-lucide="download"></i> Exportar Completo
+                        </button>
+                        <button class="btn btn-primary" onclick="exportarUltima()">
+                            <i data-lucide="file-down"></i> Exportar Última
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container footer-content">
+            <span id="statusBarText">Terminal Lista | Esperando parámetros de entrada...</span>
+            <span class="timestamp">Airsystem IA v5.0</span>
+        </div>
+    </footer>
+
+    <input type="file" id="fileInputIA"    accept=".pkl"        class="hidden" onchange="procesarArchivoIA(event)">
+    <input type="file" id="fileInputExcel" accept=".xlsx,.csv"  class="hidden" onchange="procesarArchivoExcel(event)">
+
+    <script src="/static/lucide.min.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

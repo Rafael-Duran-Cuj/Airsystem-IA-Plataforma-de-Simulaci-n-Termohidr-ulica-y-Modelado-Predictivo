@@ -1,0 +1,181 @@
+<!-- login.html- Login principal para acceder al uso de el sistema -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airsystem IA — Acceso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --canvas:   #0f172a;
+      --sidebar:  #1e293b;
+      --border:   #334155;
+      --primary:  #3b82f6;
+      --primary-dark: #2563eb;
+      --danger:   #ef4444;
+      --text:     #f8fafc;
+      --muted:    #94a3b8;
+      --radius:   12px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--canvas);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Card de login ── */
+    .login-card {
+      background: var(--sidebar);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.5);
+    }
+    .login-header { text-align: center; margin-bottom: 2rem; }
+    .login-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: .25rem; }
+    .login-header p  { font-size: .85rem; color: var(--muted); }
+    .version-badge {
+      display: inline-block; font-size: .7rem;
+      background: var(--primary); padding: 2px 10px;
+      border-radius: 20px; font-weight: 600; margin-top: .5rem;
+    }
+
+    /* ── Formulario ── */
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.25rem; }
+    .field label { font-size: .8rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .field input {
+      background: rgba(0,0,0,.25); border: 1px solid var(--border);
+      padding: .75rem 1rem; border-radius: 8px; color: white;
+      font-family: inherit; font-size: .95rem; transition: border-color .2s;
+    }
+    .field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+
+    /* ── Botón ── */
+    .btn-login {
+      width: 100%; padding: .85rem; background: var(--primary);
+      border: none; border-radius: 8px; color: white;
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: background .2s, transform .1s;
+      margin-top: .5rem;
+    }
+    .btn-login:hover   { background: var(--primary-dark); }
+    .btn-login:active  { transform: scale(.98); }
+    .btn-login:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ── Mensaje de error ── */
+    .error-msg {
+      display: none; align-items: center; gap: 8px;
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+      border-radius: 8px; padding: .75rem 1rem;
+      color: #fca5a5; font-size: .85rem; margin-bottom: 1rem;
+    }
+    .error-msg.show { display: flex; }
+
+    /* ── Info de usuarios de prueba ── */
+    .demo-info {
+      margin-top: 1.5rem; padding: 1rem;
+      background: rgba(59,130,246,.06); border: 1px solid rgba(59,130,246,.2);
+      border-radius: 8px; font-size: .8rem; color: var(--muted);
+    }
+    .demo-info strong { color: var(--text); }
+    .demo-info table  { width: 100%; margin-top: .5rem; border-collapse: collapse; }
+    .demo-info td     { padding: 4px 8px; }
+    .demo-info tr:first-child td { color: var(--muted); font-size: .75rem; text-transform: uppercase; }
+    .role-admin  { color: #f97316; font-weight: 600; }
+    .role-viewer { color: #10b981; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+
+    <div class="login-header">
+      <h1>Airsystem IA</h1>
+      <p>Plataforma de Ingeniería Térmica</p>
+      <span class="version-badge">V7.0</span>
+    </div>
+
+    <!-- Mensaje de error dinámico -->
+    <div class="error-msg" id="errorMsg">
+      <span>⚠</span>
+      <span id="errorText">Credenciales incorrectas</span>
+    </div>
+
+    <!-- Formulario -->
+    <div class="field">
+      <label>Usuario</label>
+      <input type="text" id="inputUser" placeholder="Nombre de usuario" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-login" id="btnLogin" onclick="intentarLogin()">
+      Iniciar Sesión
+    </button>
+
+    <!-- Credenciales de demo (remover en producción) -->
+
+  </div>
+
+  <script>
+    // Permitir login con Enter
+    document.getElementById('inputPass').addEventListener('keydown', e => {
+      if (e.key === 'Enter') intentarLogin();
+    });
+    document.getElementById('inputUser').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('inputPass').focus();
+    });
+
+    async function intentarLogin() {
+      const btn  = document.getElementById('btnLogin');
+      const user = document.getElementById('inputUser').value.trim();
+      const pass = document.getElementById('inputPass').value;
+
+      if (!user || !pass) {
+        mostrarError('Completa todos los campos');
+        return;
+      }
+
+      btn.disabled   = true;
+      btn.textContent = 'Verificando...';
+
+      try {
+        const res  = await fetch('/api/auth/login', {
+          method:      'POST',
+          credentials: 'include',                     
+          headers:     { 'Content-Type': 'application/json' },
+          body:        JSON.stringify({ username: user, password: pass })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          window.location.href = '/';                    
+        } else {
+          mostrarError(data.error || 'Credenciales incorrectas');
+          btn.disabled    = false;
+          btn.textContent = 'Iniciar Sesión';
+        }
+      } catch (_) {
+        mostrarError('No se pudo conectar con el servidor');
+        btn.disabled    = false;
+        btn.textContent = 'Iniciar Sesión';
+      }
+    }
+
+    function mostrarError(msg) {
+      document.getElementById('errorText').textContent = msg;
+      document.getElementById('errorMsg').classList.add('show');
+    }
+  </script>
+</body>
+</html>
