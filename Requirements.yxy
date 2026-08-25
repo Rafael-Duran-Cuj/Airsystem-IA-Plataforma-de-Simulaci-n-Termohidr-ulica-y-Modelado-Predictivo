@@ -1,0 +1,27 @@
+### `requirements.txt`
+
+Este archivo contiene las versiones congeladas de las bibliotecas para asegurar la reproducibilidad del entorno, enfocándose estrictamente en el stack científico y de deep learning.
+
+```text
+# Machine Learning y Regresores de Ensamble
+scikit-learn==1.4.0
+xgboost==2.0.3
+
+# Deep Learning (Para Physics-Informed Neural Networks)
+torch==2.2.0
+
+# Manipulación de Datos y Matemáticas
+numpy==1.26.4
+pandas==2.2.0
+scipy==1.12.0
+
+# Manipulación de archivos Excel/Tabulares
+openpyxl==3.1.2
+
+# Visualización de Datos (Curvas de error y rendimiento)
+matplotlib==3.8.2
+seaborn==0.13.2
+
+# Utilidades de desarrollo
+jupyter==1.0.0
+tqdm==4.66.2
